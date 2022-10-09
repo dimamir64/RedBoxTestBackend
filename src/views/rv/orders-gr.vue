@@ -31,16 +31,12 @@
         <DxTotalItem column="id" summary-type="count" />
       </DxSummary>
     </DxDataGrid>
-    <div>
-      Количество
-      <DxNumberBox id="total" v-model:value="cnt" />
-    </div>
   </div>
 </template>
 <script>
 //* eslint-disable import/no-unresolved */
 //* eslint-disable import/no-webpack-loader-syntax */
-import { locale, loadMessages, formatMessage } from 'devextreme/localization';
+import { locale, loadMessages, formatMessage } from "devextreme/localization";
 import {
   DxDataGrid,
   DxPaging,
@@ -49,84 +45,95 @@ import {
   DxGrouping,
   DxGroupPanel,
   DxSummary,
-  DxNumberBox,
   DxTotalItem,
-} from 'devextreme-vue/data-grid';
+} from "devextreme-vue/data-grid";
 //import DxSelectBox from 'devextreme-vue/select-box';
 
-import CustomStore from 'devextreme/data/custom_store';
-import 'whatwg-fetch';
-import ruMessages from '../ru.json';
-import service from '../data.js';
-import auth from '../../auth';
+import CustomStore from "devextreme/data/custom_store";
+import "whatwg-fetch";
+import axios from "axios";
+import ruMessages from "../ru.json";
+import service from "../data.js";
+import auth from "../../auth";
 //import data from './data.js';
 function isNotEmpty(value) {
-  return value !== undefined && value !== null && value !== '';
+  return value !== undefined && value !== null && value !== "";
 }
-//const cnt1=0;
-const headers = {
-  Accept: 'application/json',
-  'Accept-Encoding': 'gzip, deflate, br',
-  'Accept-Language': 'ru,en;q=0.9',
-  Authentication: 'Bearer ' + auth.getToken(),
-  'Cache-Control': 'no-cache',
-  Connection: 'keep-alive',
-  'X-Datetime': '2022-10-07 23:59:59',
-};
+//const cnt1=0;, PUT, DELETE, OPTIONS https://lx3074-8080.preview.csb.app "Authentication": 'Bearer ' + auth.getToken(),"Authorization": 'Bearer ' + auth.getToken(),application/json
+/*const config = {
+  headers: {
+    Accept: "*.*",
+    "Access-Control-Allow-Origin": "river.germes.rdbx.dev",
+    "Access-Control-Allow-Headers":
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization, Authentication, X-Datetime",
+    "Access-Control-Allow-Methods": "GET, POST",
+    "Access-Control-Allow-Credentials": "true",
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.167 YaBrowser/22.7.5.940 Yowser/2.5 Safari/537.36",
+    "Accept-Encoding": "gzip, deflate, br",
+    Connection: "keep-alive",
+    "X-Datetime": "2022-10-07 23:59:59",
+    Origin: "river.germes.rdbx.dev",
+  },
+};*/
 const store = new CustomStore({
-  key: 'id',
+  key: "id",
   load(loadOptions) {
-    let params = '?';
-    let prm = '';
+    let params = "?";
+    let prm = "";
     [
-      'skip',
-      'take',
-      'requireTotalCount',
-      'requireGroupCount',
-      'sort',
-      'filter',
-      'totalSummary',
-      'group',
-      'groupSummary',
+      "skip",
+      "take",
+      "requireTotalCount",
+      "requireGroupCount",
+      "sort",
+      "filter",
+      "totalSummary",
+      "group",
+      "groupSummary",
     ].forEach((i) => {
       if (i in loadOptions && isNotEmpty(loadOptions[i])) {
-        if (i == 'skip') {
-          prm = `page=${JSON.stringify(
-            loadOptions[i] / loadOptions['take'] + 1
-          )}&${i}`;
-        } else if (i == 'take') prm = 'limit';
+        console.log(i,loadOptions[i]);
+        if (i == "skip") {
+          prm = `page1=${JSON.stringify(loadOptions[i] / loadOptions["take"] + 1)}&${i}`;
+        } else if (i == "take") prm = "limit";
         else prm = i;
         params += `${prm}=${JSON.stringify(loadOptions[i])}&`;
       }
     });
     //     'key' 36565b5083fc908e77f5d3331365525e00977ad7  &id=1753
     //       params += 'key=446e1ad0f5a04797dc30d7abee8458ea887e051f&cities=27,95&dateStartFrom=2022-8-22&sort=date-asc&type=river&dateEndTo=2023-11-01&';
-    params +=
-      'filter%5Bcommission_delta%5D=&filter%5Bcomment%5D=&filter%5Bsend_comment_to_director%5D=&filter%5Bignore_payment%5D=&filter%5Bignore_report%5D=&filter%5Bpayment_status_cid%5D=&filter%5B_total_discount_amount%5D=&filter%5B_total_payment%5D=&filter%5B_total_discount_percent%5D=&filter%5B_total_insurance%5D=&page=1&limit=100&skip=&take=&sort=';
+    //params +=      "filter%5Bcommission_delta%5D=&filter%5Bcomment%5D=&filter%5Bsend_comment_to_director%5D=&filter%5Bignore_payment%5D=&filter%5Bignore_report%5D=&filter%5Bpayment_status_cid%5D=&filter%5B_total_discount_amount%5D=&filter%5B_total_payment%5D=&filter%5B_total_discount_percent%5D=&filter%5B_total_insurance%5D=&page=1&limit=100&skip=&take=&sort=";
     params = params.slice(0, -1);
     //https://js.devexpress.com/Demos/WidgetsGalleryDataService/api/orders
     //https://booking.infoflot.com/API/riverlines/cruises?limit=10&sort=date-asc&cities=27,95&dateStartFrom=2022-8-22&offset=10&key=446e1ad0f5a04797dc30d7abee8458ea887e051f&id=1753
     //https://js.devexpress.com/Demos/WidgetsGalleryDataService/api/orders?skip=0&take=12&requireTotalCount=true
-    headers.Authentication = 'Bearer ' + auth.getToken();
-    console.log(headers);
-
-    return fetch(`https://river.germes.rdbx.dev/api/orders${params}`, {
-      headers,
-    })
-      .then((response) => response.json())
-      .then((data) => ({
-        data: data.data,
-        totalCount: data.pagination.records.total,
-        summary: 0, //data.summary,
-        groupCount: 0, //data.groupCount,
-      }))
+    //config.headers.Authentication = 'Bearer ' + auth.getToken();
+    //    config.headers.Authorization = 'Bearer ' + auth.getToken();
+    //console.log(config);
+    axios.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${auth.getToken()}`;
+    //console.log( "Authorization",  axios.defaults.headers.common["Authorization"]);
+    //    return fetch(`https://river.germes.rdbx.dev/api/orders${params}`, {, config
+    return axios
+      .get(`https://river.germes.rdbx.dev/api/orders${params}`)
+      .then((response) => {
+        console.log("totalCount", response.data._meta.totalCount);
+        return {
+          data: response.data.data,
+          totalCount: response.data._meta.totalCount,
+          summary: 0, //data.summary,
+          groupCount: 0, //data.groupCount,
+        };
+      })
       .catch(() => {
-        throw new Error('Ошибка загрузки данных');
+        throw new Error("Ошибка загрузки данных");
       });
   },
 });
 //    DxPager,  DxSelectBox,
-const dataGridRef = 'dataGrid';
+const dataGridRef = "dataGrid";
 export default {
   components: {
     DxDataGrid,
@@ -137,7 +144,6 @@ export default {
     DxTotalItem,
     DxGrouping,
     DxGroupPanel,
-    DxNumberBox,
   },
   created() {
     this.locale = this.getLocale();
@@ -152,8 +158,8 @@ export default {
       dataGridRef,
       locales: service.getLocales(),
       editPopupOptions: { width: 700, height: 345 },
-      amountEditorOptions: { format: 'currency', showClearButton: true },
-      selectBoxInputAttr: { id: 'selectInput' },
+      amountEditorOptions: { format: "currency", showClearButton: true },
+      selectBoxInputAttr: { id: "selectInput" },
     };
   },
   computed: {
@@ -173,11 +179,11 @@ export default {
       return store.totalCount;
     },
     getLocale() {
-      const storageLocale = sessionStorage.getItem('locale');
-      return storageLocale != null ? storageLocale : 'ru';
+      const storageLocale = sessionStorage.getItem("locale");
+      return storageLocale != null ? storageLocale : "ru";
     },
     setLocale(savingLocale) {
-      sessionStorage.setItem('locale', savingLocale);
+      sessionStorage.setItem("locale", savingLocale);
     },
     initMessages() {
       loadMessages(ruMessages);
@@ -188,7 +194,7 @@ export default {
       document.location.reload();
     },
     formatMessage,
-    formatDate: new Intl.DateTimeFormat('ru-RU').format,
+    formatDate: new Intl.DateTimeFormat("ru-RU").format,
     contentReady(e) {
       if (!e.component.getSelectedRowKeys().length) {
         e.component.selectRowsByIndexes(0);
