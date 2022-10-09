@@ -7,7 +7,7 @@ const defaultUser = {
 };
 const tokend=null;
 import axios from 'axios';
-//import sha256 from 'crypto-js/aes';
+//import sha256 from 'crypto-js/aes';123
 //import regeneratorRuntime from '@babel/runtime/regenerator';
 
 const API_URL = 'https://river.germes.rdbx.dev/api/auth/jwt/';
