@@ -92,7 +92,7 @@ export default {
     const router = useRouter();
 
     const formData = reactive({
-      email:"",
+      email:"admin@dm64.ru",
       login:"79000000000",
       password:""
     });
@@ -105,22 +105,23 @@ export default {
     async function onSubmit() {
       const { email, login, password } = formData;
       loading.value = true;
-      console.log("onSubmit",email, login, password);
+   //   console.log("onSubmit",email, login, password);
       const result = await auth.logIn(email, login, password);
       //await result.json();
-      setTimeout(()=>{console.log("1")
-      console.log(auth.getToken());
+      if (result) console.log("result",result)
+      setTimeout(()=>{
+        //console.log("1");      console.log(auth.getToken());
       if (!auth.getToken()) {//result.isOk
-        console.log("onSubmit !result.isOk",email, login, password)
+    //    console.log("onSubmit !result.isOk",email, login, password)
         loading.value = false;
         notify("Ошибка авторизации", "error", 2000);
       } else {
         loading.value = false;
         notify("Успешная авторизация", "info", 2000);
-        console.log("onSubmit isOk",result)
+      //  console.log("onSubmit isOk",result)
         router.push(route.query.redirect || "/home");
       }
-      loading.value = false;},1000)
+      loading.value = false;},1500)
     }
 
     return {
