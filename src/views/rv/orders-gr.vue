@@ -4,13 +4,13 @@
       :show-borders="true" :remote-operations="{ paging: true }" :ref="dataGridRef" :allow-column-reordering="true"
       :allow-column-resizing="true" :column-hiding-enabled="true" column-resizing-mode="widget"  :word-wrap-enabled="true"
       :column-auto-width="true" :row-alternatin-enabled="true" :hover-state-enabled="true">
-      <DxLoadPanel :enabled="false" />
+      <DxLoadPanel :enabled="true" />
       <DxScrolling mode="infinite" />
       <DxSorting mode="multiple" />
       <DxEditing :allow-adding="true" :allow-updating="true" mode="batch" />
       <DxGroupPanel :visible="true" />
       <DxGrouping :auto-expand-all="autoExpandAll" />
-      <DxPaging :page-size="20" />
+      <DxPaging :page-size="200" />
       <DxSearchPanel :visible="true" />
       <DxColumnChooser :enabled="true" mode="select" />
     </DxDataGrid>
@@ -98,7 +98,7 @@ const store = new CustomStore({
     return axios
       .get(`https://river.germes.rdbx.dev/api/orders${params}`)
       .then((response) => {
-        console.log("totalCount", response.data._meta.totalCount);
+      //  console.log("totalCount", response.data._meta.totalCount);
         return {
           data: response.data.data,
           totalCount: response.data._meta.totalCount,
