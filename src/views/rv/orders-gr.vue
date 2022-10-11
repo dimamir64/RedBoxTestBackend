@@ -1,51 +1,33 @@
 <template>
   <div>
-    <DxDataGrid
-      id="gridContainer"
-      :data-source="dataSource"
-      key-expr="id"
-      :show-borders="true"
-      :word-wrap-enabled="true"
-      :remote-operations="{ paging: true }"
-      :ref="dataGridRef"
-      :allow-column-reordering="true"
-      :allow-column-resizing="true"
-      :column-hiding-enabled="true"
-      column-resizing-mode="widget"
-      :column-auto-width="true"
-      :row-alternatin-enabled="true"
-      :hover-state-enabled="true"
-    >
-      <DxSelection mode="single" />
-      <DxPaging :page-size="100" :show-info="true" />
+    <DxDataGrid id="gridContainer"  :data-source="dataSource" key-expr="id"
+      :show-borders="true" :remote-operations="{ paging: true }" :ref="dataGridRef" :allow-column-reordering="true"
+      :allow-column-resizing="true" :column-hiding-enabled="true" column-resizing-mode="widget"  :word-wrap-enabled="true"
+      :column-auto-width="true" :row-alternatin-enabled="true" :hover-state-enabled="true">
+      <DxLoadPanel :enabled="false" />
       <DxScrolling mode="infinite" />
-      />
+      <DxSorting mode="multiple" />
       <DxEditing :allow-adding="true" :allow-updating="true" mode="batch" />
-      <DxGrouping :context-menu-enabled="true" expand-mode="rowClick" />
-      <DxGroupPanel
-        :visible="true"
-        empty-panel-text="Перенесите за заголовок поле для группировки"
-      />
+      <DxGroupPanel :visible="true" />
+      <DxGrouping :auto-expand-all="autoExpandAll" />
+      <DxPaging :page-size="20" />
+      <DxSearchPanel :visible="true" />
       <DxColumnChooser :enabled="true" mode="select" />
-      <DxSummary>
-        <DxTotalItem column="id" summary-type="count" />
-      </DxSummary>
     </DxDataGrid>
   </div>
-</template>
+</template> 
 <script>
 //* eslint-disable import/no-unresolved */
 //* eslint-disable import/no-webpack-loader-syntax */
 import { locale, loadMessages, formatMessage } from "devextreme/localization";
 import {
   DxDataGrid,
-  DxPaging,
-  DxSelection,
   DxScrolling,
+  DxSorting,
+  DxLoadPanel,
   DxGrouping,
   DxGroupPanel,
-  DxSummary,
-  DxTotalItem,
+  DxSearchPanel,DxEditing,DxPaging,DxColumnChooser
 } from "devextreme-vue/data-grid";
 //import DxSelectBox from 'devextreme-vue/select-box';
 
@@ -59,14 +41,14 @@ import auth from "../../auth";
 function isNotEmpty(value) {
   return value !== undefined && value !== null && value !== "";
 }
-//const cnt1=0;, PUT, DELETE, OPTIONS https://lx3074-8080.preview.csb.app "Authentication": 'Bearer ' + auth.getToken(),"Authorization": 'Bearer ' + auth.getToken(),application/json
+//const cnt1=0; https://lx3074-8080.preview.csb.app "Authentication": 'Bearer ' + auth.getToken(),"Authorization": 'Bearer ' + auth.getToken(),application/json
 /*const config = {
   headers: {
     Accept: "*.*",
     "Access-Control-Allow-Origin": "river.germes.rdbx.dev",
     "Access-Control-Allow-Headers":
       "Origin, X-Requested-With, Content-Type, Accept, Authorization, Authentication, X-Datetime",
-    "Access-Control-Allow-Methods": "GET, POST",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Access-Control-Allow-Credentials": "true",
     "User-Agent":
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.167 YaBrowser/22.7.5.940 Yowser/2.5 Safari/537.36",
@@ -92,18 +74,17 @@ const store = new CustomStore({
       "group",
       "groupSummary",
     ].forEach((i) => {
+      //console.log(i, loadOptions[i]);
       if (i in loadOptions && isNotEmpty(loadOptions[i])) {
-        console.log(i,loadOptions[i]);
-        if (i == "skip") {
-          prm = `page1=${JSON.stringify(loadOptions[i] / loadOptions["take"] + 1)}&${i}`;
-        } else if (i == "take") prm = "limit";
+        if (i == "skip") { prm = `page=${JSON.stringify(loadOptions[i] / loadOptions["take"] + 1)}&${"pp1"}`; } else if (i == "take") prm = "limit";
         else prm = i;
         params += `${prm}=${JSON.stringify(loadOptions[i])}&`;
       }
     });
-    //     'key' 36565b5083fc908e77f5d3331365525e00977ad7  &id=1753
+    //     'key' 36565b5083fc908e77f5d3331365525e00977ad7  &id=1753 &take=&sort=
     //       params += 'key=446e1ad0f5a04797dc30d7abee8458ea887e051f&cities=27,95&dateStartFrom=2022-8-22&sort=date-asc&type=river&dateEndTo=2023-11-01&';
     //params +=      "filter%5Bcommission_delta%5D=&filter%5Bcomment%5D=&filter%5Bsend_comment_to_director%5D=&filter%5Bignore_payment%5D=&filter%5Bignore_report%5D=&filter%5Bpayment_status_cid%5D=&filter%5B_total_discount_amount%5D=&filter%5B_total_payment%5D=&filter%5B_total_discount_percent%5D=&filter%5B_total_insurance%5D=&page=1&limit=100&skip=&take=&sort=";
+    params +=      "&extend=order_cabins,order_payments,contractor,cabinNumbers";
     params = params.slice(0, -1);
     //https://js.devexpress.com/Demos/WidgetsGalleryDataService/api/orders
     //https://booking.infoflot.com/API/riverlines/cruises?limit=10&sort=date-asc&cities=27,95&dateStartFrom=2022-8-22&offset=10&key=446e1ad0f5a04797dc30d7abee8458ea887e051f&id=1753
@@ -111,9 +92,7 @@ const store = new CustomStore({
     //config.headers.Authentication = 'Bearer ' + auth.getToken();
     //    config.headers.Authorization = 'Bearer ' + auth.getToken();
     //console.log(config);
-    axios.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${auth.getToken()}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${auth.getToken()}`;
     //console.log( "Authorization",  axios.defaults.headers.common["Authorization"]);
     //    return fetch(`https://river.germes.rdbx.dev/api/orders${params}`, {, config
     return axios
@@ -138,12 +117,11 @@ export default {
   components: {
     DxDataGrid,
     DxScrolling,
-    DxPaging,
-    DxSelection,
-    DxSummary,
-    DxTotalItem,
+    DxSorting,
+    DxLoadPanel,
     DxGrouping,
     DxGroupPanel,
+    DxSearchPanel,DxEditing,DxPaging,DxColumnChooser
   },
   created() {
     this.locale = this.getLocale();
@@ -275,11 +253,11 @@ export default {
   font-weight: 500;
 }
 
-.option > label {
+.option>label {
   margin-right: 10px;
 }
 
-.option > .dx-selectbox {
+.option>.dx-selectbox {
   display: inline-block;
   vertical-align: middle;
 }
