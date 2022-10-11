@@ -7,7 +7,7 @@ const defaultUser = {
 };
 const tokend=null;
 import axios from 'axios';
-//import sha256 from 'crypto-js/aes';
+//import sha256 from 'crypto-js/aes';123
 //import regeneratorRuntime from '@babel/runtime/regenerator';
 
 const API_URL = 'https://river.germes.rdbx.dev/api/auth/jwt/';
@@ -19,7 +19,7 @@ export default {
 //    console.log('loggedIn',this._user);
     const t2=JSON.parse(sessionStorage.getItem('user'))?.access_token;
     const r=!!t2;
-    console.log('loggedIn r',r,t2);
+ //   console.log('loggedIn r',r,t2);
     return r;
   },
 
@@ -39,7 +39,7 @@ export default {
 
 async logIn  (email, login, password) {
     try {
-      console.log(email, login, password);
+     // console.log(email, login, password);
       this._user = { ...defaultUser, email, login, password };
       sessionStorage.removeItem('user');
       this.token =null;
@@ -52,13 +52,13 @@ async logIn  (email, login, password) {
       })
       .then(response => {
         if (response.data.data.access_token) {
-          console.log('access_token получен');
+      //    console.log('access_token получен');
           this._user.token = response.data.data.access_token;
           this.token = response.data.data.access_token;
           sessionStorage.setItem('user', JSON.stringify(response.data.data));
         }
         const r = {isOk: true, data: this._user};
-        console.log('logIn isOk2',r);
+     //   console.log('logIn isOk2',r);
         return r;
     })
       .catch(error => {
