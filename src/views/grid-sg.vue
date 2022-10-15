@@ -1,96 +1,78 @@
 <template>
-<div>
-  <DxDataGrid id="gridContainer" :data-source="dataSource" key-expr="id" :show-borders="true" :word-wrap-enabled="true"
-    :remote-operations="{ paging: true }" 
-    :ref="dataGridRef"
-    :allow-column-reordering="true" :allow-column-resizing="true"
-    :column-hiding-enabled="true"
-    column-resizing-mode="widget" :column-auto-width="true" :row-alternatin-enabled="true" :hover-state-enabled="true"
-    @selection-changed="selectionChanged" @content-ready="contentReady" data-row-template="dataRowTemplate">
-    <DxSelection mode="single" />
-    <DxPaging :page-size="100" :show-info="true"/>
-    <DxScrolling mode="infinite"/>
-     />
-    <DxEditing
-        :allow-adding="true"
-        :allow-updating="true"
-        mode="batch"
-    />
-    <DxGrouping
-        :context-menu-enabled="true"
-        expand-mode="rowClick"
-      />
-    <DxGroupPanel
-        :visible="true"
-        empty-panel-text="Перенесите за заголовок поле для группировки"
-      />    
-    <DxColumnChooser
-        :enabled="true"
-        mode="select"
-    />
-    <DxHeaderFilter :visible="true" :allow-search="true" />
-    <DxColumn :allow-sorting="false" data-field="ship.photo.path" :minwidth="100" :width="200" header-cell-template="headerTemplate"/>
-    <DxColumn data-field="ship.name" data-type="string" :minwidth="100" :width="200" caption="Теплоход" />
-    <DxColumn data-field="dateStart" data-type="date" :minwidth="100" :width="150" caption="Начало" />
-    <DxColumn data-field="dateEnd" data-type="date" :minwidth="100" :width="150" caption="Завершение" />
-    <DxColumn data-field="days" data-type="number" :minwidth="50" :width="100" format="fixedPoint" caption="Дней" />
-    <DxColumn data-field="nights" data-type="number" :minwidth="50" :width="100" format="fixedPoint" caption="Ночей" />
-    <DxColumn data-field="min_price_absolute" data-type="number" :width="80" format="fixedPoint" caption="Мин Цена" />
-    <DxColumn data-field="is_wow" data-type="bool" :width="80" caption="" :visible="false" />
-    <DxColumn data-field="id" data-type="number" :width="80" caption="" :visible="false" />
-    <DxColumn data-field="routeShort" data-type="text" caption="" :visible="false" />
-    <DxColumn data-field="route" data-type="text" caption="" :visible="false" />
-      <DxSummary>
-        <DxTotalItem 
-          column="id"
-          summary-type="count"
-        />
-      </DxSummary>
-    <template #dataRowTemplate="{ data: rowInfo }">
-      <tr class="main-row">
-        <td rowspan="3"></td>
-        <td rowspan="3"><img :src="rowInfo.data.ship.photo.path" alt=""></td>
-        <td>{{ rowInfo.data.ship.name }} </td>
-        <td colspan="1">{{ formatDate(new Date(rowInfo.data.dateStart)) }} </td> 
-        <td colspan="1">{{ formatDate(new Date(rowInfo.data.dateEnd)) }} </td>
-        <td style="text-align: right;">{{ rowInfo.data.days }}</td>
-        <td style="text-align: right;">{{ rowInfo.data.nights }} </td>
-        <td style="text-align: right;">{{ rowInfo.data.min_price_absolute }}</td>
-      </tr>
-      <tr class="">
-        <td colspan="6">
-          <div>{{ rowInfo.totalCount}} <strong> {{ rowInfo.data.routeShort }} </strong></div>
-        </td>
-      </tr>
-      <tr class="notes-row">
-        <td colspan="6">
-          <div> {{ rowInfo.data.is_wow }} {{ rowInfo.data.route }}</div>
-        </td>
-      </tr>
-    </template>
-    <template #headerTemplate="{ data}">
-      <div> Всего круизов: </div>
-    </template>
-    <DxMasterDetail :enabled="true" template="master-detail-cruise" />
-    <template #master-detail-cruise="{ data }">
-      <MasterDetailCruise :master-detail-data="data" />
-    </template>
-      <DxSummary>
-
-      </DxSummary>  
-  </DxDataGrid>
   <div>
-    Количество 
-    <DxNumberBox
-      id="total"
-      v-model:value="cnt"
-    />
-         
+    <DxDataGrid id="gridContainer" :data-source="dataSource" key-expr="id" :show-borders="true"
+      :word-wrap-enabled="true" :remote-operations="{ paging: true }" :ref="dataGridRef" :allow-column-reordering="true"
+      :allow-column-resizing="true" :column-hiding-enabled="true" column-resizing-mode="widget"
+      :column-auto-width="true" :row-alternatin-enabled="true" :hover-state-enabled="true"
+      @selection-changed="selectionChanged" @content-ready="contentReady" data-row-template="dataRowTemplate">
+      <DxSelection mode="single" />
+      <DxPaging :page-size="100" :show-info="true" />
+      <DxScrolling mode="infinite" />
+      />
+      <DxEditing :allow-adding="true" :allow-updating="true" mode="batch" />
+      <DxGrouping :context-menu-enabled="true" expand-mode="rowClick" />
+      <DxGroupPanel :visible="true" empty-panel-text="Перенесите за заголовок поле для группировки" />
+      <DxColumnChooser :enabled="true" mode="select" />
+      <DxHeaderFilter :visible="true" :allow-search="true" />
+      <DxColumn :allow-sorting="false" data-field="ship.photo.path" :minwidth="100" :width="200"
+        header-cell-template="headerTemplate" />
+      <DxColumn data-field="ship.name" data-type="string" :minwidth="100" :width="200" caption="Теплоход" />
+      <DxColumn data-field="dateStart" data-type="date" :minwidth="100" :width="150" caption="Начало" />
+      <DxColumn data-field="dateEnd" data-type="date" :minwidth="100" :width="150" caption="Завершение" />
+      <DxColumn data-field="days" data-type="number" :minwidth="50" :width="100" format="fixedPoint" caption="Дней" />
+      <DxColumn data-field="nights" data-type="number" :minwidth="50" :width="100" format="fixedPoint"
+        caption="Ночей" />
+      <DxColumn data-field="min_price_absolute" data-type="number" :width="80" format="fixedPoint" caption="Мин Цена" />
+      <DxColumn data-field="is_wow" data-type="bool" :width="80" caption="" :visible="false" />
+      <DxColumn data-field="id" data-type="number" :width="80" caption="" :visible="false" />
+      <DxColumn data-field="routeShort" data-type="text" caption="" :visible="false" />
+      <DxColumn data-field="route" data-type="text" caption="" :visible="false" />
+      <DxSummary>
+        <DxTotalItem column="id" summary-type="count" />
+      </DxSummary>
+      <template #dataRowTemplate="{ data: rowInfo }">
+        <tr class="main-row">
+          <td rowspan="3"></td>
+          <td rowspan="3"><img :src="rowInfo.data.ship.photo.path" alt=""></td>
+          <td>{{ rowInfo.data.ship.name }} </td>
+          <td colspan="1">{{ formatDate(new Date(rowInfo.data.dateStart)) }} </td>
+          <td colspan="1">{{ formatDate(new Date(rowInfo.data.dateEnd)) }} </td>
+          <td style="text-align: right;">{{ rowInfo.data.days }}</td>
+          <td style="text-align: right;">{{ rowInfo.data.nights }} </td>
+          <td style="text-align: right;">{{ rowInfo.data.min_price_absolute }}</td>
+        </tr>
+        <tr class="">
+          <td colspan="6">
+            <div>{{ rowInfo.totalCount}} <strong> {{ rowInfo.data.routeShort }} </strong></div>
+          </td>
+        </tr>
+        <tr class="notes-row">
+          <td colspan="6">
+            <div> {{ rowInfo.data.is_wow }} {{ rowInfo.data.route }}</div>
+          </td>
+        </tr>
+      </template>
+
+
+    </DxDataGrid>
+
   </div>
-</div>
 </template>
 <script>
-/*        <DxTotalItem pagination.records.total{{data.totalCount}}  <DxScrolling mode="virtual" row-rendering-mode="virtual"
+/*      
+      <DxMasterDetail :enabled="true" template="master-detail-cruise" />
+      <template #master-detail-cruise="{ data }">
+        <MasterDetailCruise :master-detail-data="data" />
+      </template>
+      <DxSummary>
+
+      </DxSummary>    
+      <div>
+      Количество
+      <DxNumberBox id="total" v-model:value="cnt" />
+
+    </div>
+<DxTotalItem pagination.records.total{{data.totalCount}}  <DxScrolling mode="virtual" row-rendering-mode="virtual"
           column="ship.name"
           summary-type="count"
         />
@@ -111,14 +93,18 @@
       <DxSelectBox :data-source="locales" :value="locale" :input-attr="selectBoxInputAttr" value-expr="Value"
         display-expr="Name" @valueChanged="changeLocale($event)" />
     </div>
-  </div>*/
+  </div>
+  DxNumberBox, DxMasterDetail,
+  */
 //* eslint-disable import/no-unresolved */
 //* eslint-disable import/no-webpack-loader-syntax */
 import { locale, loadMessages, formatMessage } from 'devextreme/localization';
-import { DxDataGrid, DxColumn, DxHeaderFilter, DxPaging, DxMasterDetail, DxSelection, DxScrolling, DxGrouping,DxGroupPanel,  DxSummary, DxNumberBox,
-  DxTotalItem, } from 'devextreme-vue/data-grid';
+import {
+  DxDataGrid, DxColumn, DxHeaderFilter, DxPaging, DxSelection, DxScrolling, DxGrouping, DxGroupPanel, DxSummary, 
+  DxTotalItem,
+} from 'devextreme-vue/data-grid';
 //import DxSelectBox from 'devextreme-vue/select-box';
-import MasterDetailCruise from './MasterDetailCruise.vue';
+//import MasterDetailCruise from './MasterDetailCruise.vue';
 
 import CustomStore from 'devextreme/data/custom_store';
 import 'whatwg-fetch';
@@ -146,7 +132,7 @@ const store = new CustomStore({
       'groupSummary',
     ].forEach((i) => {
       if (i in loadOptions && isNotEmpty(loadOptions[i])) {
-        if (i == "skip") {prm = `page=${JSON.stringify(loadOptions[i]/loadOptions["take"]+1)}&${i}`}
+        if (i == "skip") { prm = `page=${JSON.stringify(loadOptions[i] / loadOptions["take"] + 1)}&${i}` }
         else if (i == "take") prm = 'limit'
         else prm = i;
         params += `${prm}=${JSON.stringify(loadOptions[i])}&`;
@@ -169,7 +155,7 @@ const store = new CustomStore({
       .catch(() => { throw new Error('Ошибка загрузки данных'); });
   },
 });
-//    DxPager,  DxSelectBox,
+//    DxPager,  DxSelectBox,  DxMasterDetail,  DxNumberBox,MasterDetailCruise,
 const dataGridRef = 'dataGrid';
 export default {
   components: {
@@ -178,11 +164,10 @@ export default {
     DxScrolling,
     DxPaging,
     DxHeaderFilter,
-    DxSelection, 
+    DxSelection,
     DxSummary,
     DxTotalItem,
-    DxMasterDetail, DxGrouping, DxGroupPanel, DxNumberBox,
-    MasterDetailCruise
+    DxGrouping, DxGroupPanel
   },
   created() {
     this.locale = this.getLocale();
@@ -193,7 +178,7 @@ export default {
     return {
       dataSource: store,
       locale: null,
-      cnt:121,
+      cnt: 121,
       dataGridRef,
       locales: service.getLocales(),
       editPopupOptions: { width: 700, height: 345 },
@@ -203,18 +188,18 @@ export default {
     };
   },
   computed: {
-    tcnt(){return 111},
-    dataGrid: function() {
-    return this.$refs[dataGridRef].instance;
+    tcnt() { return 111 },
+    dataGrid: function () {
+      return this.$refs[dataGridRef].instance;
     }
   },
   methods: {
     getRecordCount() {
-        const dataSource = this.dataGrid.getDataSource();
-        return dataSource.items().length+1;
+      const dataSource = this.dataGrid.getDataSource();
+      return dataSource.items().length + 1;
     },
-    gcnt(){
-        return store.totalCount;
+    gcnt() {
+      return store.totalCount;
     },
     getLocale() {
       const storageLocale = sessionStorage.getItem('locale');

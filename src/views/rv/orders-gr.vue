@@ -1,25 +1,62 @@
 <template>
   <div>
-    <DxDataGrid id="gridContainer"  :data-source="dataSource" key-expr="id"
-      :show-borders="true" :remote-operations="{ paging: true }" :ref="dataGridRef" :allow-column-reordering="true"
-      :allow-column-resizing="true" :column-hiding-enabled="true" column-resizing-mode="widget"  :word-wrap-enabled="true"
-      :column-auto-width="true" :row-alternatin-enabled="true" :hover-state-enabled="true">
-      <DxLoadPanel :enabled="true" />
-      <DxScrolling mode="infinite" />
-      <DxSorting mode="multiple" />
-      <DxEditing :allow-adding="true" :allow-updating="true" mode="batch" />
-      <DxGroupPanel :visible="true" />
-      <DxGrouping :auto-expand-all="autoExpandAll" />
-      <DxPaging :page-size="200" />
-      <DxSearchPanel :visible="true" />
-      <DxColumnChooser :enabled="true" mode="select" />
-    </DxDataGrid>
+    <div class="dx-fieldset" :col-count="6">
+      <div class="dx-field">
+        <div class="dx-field-label" style="width:550px" >
+          <DxLookup :items="items" :display-expr="getDisplayExpr" placeholder="Выберете endpoint" 
+            @value-changed="setSelectedValue">
+            value-expr="name"
+            <DxDropDownOptions :show-title="false" />
+          </DxLookup>
+        </div>
+        <div class="dx-field-label" style="margin-left:25px">
+          <DxButton :width="150" text="Следующий" type="normal" styling-mode="contained" @click="refresh" />
+        </div>
+        <div class="dx-field-label">
+          <DxButton :width="150" text="Обновить" type="normal" styling-mode="contained" @click="refresh" />
+        </div>
+      </div>
+    </div>
+    <DxForm id="form" :form-data="formData" :min-col-width="50" :col-count="6">
+
+    </DxForm>
+    <div> {{reqtext}} {{cnt}}</div>
+    <div v-if="refr">
+      <div class="selected">
+        <DxDataGrid id="gridContainer" :data-source="dataSource" key-expr="id" :show-borders="true"
+          :remote-operations="{ paging: true }" :ref="dataGridRef" :allow-column-reordering="true"
+          :allow-column-resizing="true" :column-hiding-enabled="true" column-resizing-mode="widget"
+          :word-wrap-enabled="true" :column-auto-width="true" :row-alternatin-enabled="true"
+          :hover-state-enabled="true">
+          <DxLoadPanel :enabled="true" />
+          <DxScrolling mode="infinite" />
+          <DxSorting mode="multiple" />
+          <DxEditing :allow-adding="true" :allow-updating="true" mode="batch" />
+          <DxGroupPanel :visible="true" />
+          <DxGrouping :auto-expand-all="true" />
+          <DxPaging :page-size="200" />
+          <DxSearchPanel :visible="true" />
+          <DxColumnChooser :enabled="true" mode="select" />
+        </DxDataGrid>
+      </div>
+    </div>
   </div>
 </template> 
 <script>
+/*  :label-mode="floating" :label-location="top"
+          <form class="login-form" @submit.prevent="onSubmit">
+            <dx-form :form-data="formData" :disabled="loading">
+              <dx-button-item>
+                <dx-button-options text="Обновить" width="10%" :on-click="onRefresh" />
+              </dx-button-item>
+            </dx-form>
+          </form>
+*/
 //* eslint-disable import/no-unresolved */
 //* eslint-disable import/no-webpack-loader-syntax */
+/* eslint-disable */
 import { locale, loadMessages, formatMessage } from "devextreme/localization";
+import DxButton from 'devextreme-vue/button';
 import {
   DxDataGrid,
   DxScrolling,
@@ -27,9 +64,18 @@ import {
   DxLoadPanel,
   DxGrouping,
   DxGroupPanel,
-  DxSearchPanel,DxEditing,DxPaging,DxColumnChooser
+  DxSearchPanel, DxEditing, DxPaging, DxColumnChooser
 } from "devextreme-vue/data-grid";
+import { DxLookup, DxDropDownOptions } from 'devextreme-vue/lookup';
+/*import DxForm, {
+ 
+} from "devextreme-vue/form";*/
 //import DxSelectBox from 'devextreme-vue/select-box';
+import {
+  DxForm, DxItem, DxSelectBox, DxButtonItem,
+  DxButtonOptions
+
+} from 'devextreme-vue/form';
 
 import CustomStore from "devextreme/data/custom_store";
 import "whatwg-fetch";
@@ -37,7 +83,11 @@ import axios from "axios";
 import ruMessages from "../ru.json";
 import service from "../data.js";
 import auth from "../../auth";
+import Serv from "../../endpoints";
 //import data from './data.js';
+//console.log("endpoints",endpoints);
+
+
 function isNotEmpty(value) {
   return value !== undefined && value !== null && value !== "";
 }
@@ -58,70 +108,74 @@ function isNotEmpty(value) {
     Origin: "river.germes.rdbx.dev",
   },
 };*/
-const store = new CustomStore({
-  key: "id",
-  load(loadOptions) {
-    let params = "?";
-    let prm = "";
-    [
-      "skip",
-      "take",
-      "requireTotalCount",
-      "requireGroupCount",
-      "sort",
-      "filter",
-      "totalSummary",
-      "group",
-      "groupSummary",
-    ].forEach((i) => {
-      //console.log(i, loadOptions[i]);
-      if (i in loadOptions && isNotEmpty(loadOptions[i])) {
-        if (i == "skip") { prm = `page=${JSON.stringify(loadOptions[i] / loadOptions["take"] + 1)}&${"pp1"}`; } else if (i == "take") prm = "limit";
-        else prm = i;
-        params += `${prm}=${JSON.stringify(loadOptions[i])}&`;
-      }
-    });
-    //     'key' 36565b5083fc908e77f5d3331365525e00977ad7  &id=1753 &take=&sort=
-    //       params += 'key=446e1ad0f5a04797dc30d7abee8458ea887e051f&cities=27,95&dateStartFrom=2022-8-22&sort=date-asc&type=river&dateEndTo=2023-11-01&';
-    //params +=      "filter%5Bcommission_delta%5D=&filter%5Bcomment%5D=&filter%5Bsend_comment_to_director%5D=&filter%5Bignore_payment%5D=&filter%5Bignore_report%5D=&filter%5Bpayment_status_cid%5D=&filter%5B_total_discount_amount%5D=&filter%5B_total_payment%5D=&filter%5B_total_discount_percent%5D=&filter%5B_total_insurance%5D=&page=1&limit=100&skip=&take=&sort=";
-    params +=      "&extend=order_cabins,order_payments,contractor,cabinNumbers";
-    params = params.slice(0, -1);
-    //https://js.devexpress.com/Demos/WidgetsGalleryDataService/api/orders
-    //https://booking.infoflot.com/API/riverlines/cruises?limit=10&sort=date-asc&cities=27,95&dateStartFrom=2022-8-22&offset=10&key=446e1ad0f5a04797dc30d7abee8458ea887e051f&id=1753
-    //https://js.devexpress.com/Demos/WidgetsGalleryDataService/api/orders?skip=0&take=12&requireTotalCount=true
-    //config.headers.Authentication = 'Bearer ' + auth.getToken();
-    //    config.headers.Authorization = 'Bearer ' + auth.getToken();
-    //console.log(config);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${auth.getToken()}`;
-    //console.log( "Authorization",  axios.defaults.headers.common["Authorization"]);
-    //    return fetch(`https://river.germes.rdbx.dev/api/orders${params}`, {, config
-    return axios
-      .get(`https://river.germes.rdbx.dev/api/orders${params}`)
-      .then((response) => {
-      //  console.log("totalCount", response.data._meta.totalCount);
-        return {
-          data: response.data.data,
-          totalCount: response.data._meta.totalCount,
-          summary: 0, //data.summary,
-          groupCount: 0, //data.groupCount,
-        };
-      })
-      .catch(() => {
-        throw new Error("Ошибка загрузки данных");
+const url = 'https://river.germes.rdbx.dev/api/';
+let ep = 'orders'
+//const store = 
+
+function newStore() {
+  return new CustomStore({
+    key: "id",
+    load(loadOptions) {
+      let params = "?";
+      let prm = "";
+      ["skip", "take", "requireTotalCount", "requireGroupCount", "sort", "filter", "totalSummary", "group", "groupSummary",
+      ].forEach((i) => {
+        //console.log(i, loadOptions[i]);
+        if (i in loadOptions && isNotEmpty(loadOptions[i])) {
+          if (i == "skip") { prm = `page=${JSON.stringify(loadOptions[i] / loadOptions["take"] + 1)}&${"pp1"}`; } else if (i == "take") prm = "limit";
+          else prm = i;
+          params += `${prm}=${JSON.stringify(loadOptions[i])}&`;
+        }
       });
-  },
-});
-//    DxPager,  DxSelectBox,
+      // params +=      "&extend=order_cabins,order_payments,contractor,cabinNumbers";
+      params = params.slice(0, -1);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${auth.getToken()}`;
+      //console.log( "Authorization",  axios.defaults.headers.common["Authorization"]);
+      return axios
+        .get(`${url}${ep}${params}`)
+        .then((response) => {
+          let cnt = 0;
+          //          console.log("response", response);
+          if (response.data?._meta?.totalCount) {
+            //          console.log("totalCount", response.data._meta.totalCount);
+            cnt = response.data._meta.totalCount;
+            console.log("cnt", cnt);
+          }
+          return {
+            data: response.data.data,
+            totalCount: cnt,
+            summary: 0, //data.summary,
+            groupCount: 0, //data.groupCount,
+          };
+        })
+        .catch((error) => {
+          console.log("error", error);
+          throw new Error("Ошибка загрузки данных");
+        });
+    },
+  })
+}
+//    DxPager,  DxSelectBox,useRoute,
 const dataGridRef = "dataGrid";
+//import { useRouter } from 'vue-router';
+const reqparams = {
+  ep0: "",
+  id0: "",
+  ep1: "",
+  id1: "",
+  ep2: "",
+  id2: "",
+}
 export default {
+  setup() {
+  },
   components: {
-    DxDataGrid,
-    DxScrolling,
-    DxSorting,
-    DxLoadPanel,
-    DxGrouping,
-    DxGroupPanel,
-    DxSearchPanel,DxEditing,DxPaging,DxColumnChooser
+    DxDataGrid, DxLookup, DxDropDownOptions,
+    DxScrolling, DxSorting, DxLoadPanel, DxGrouping,
+    DxGroupPanel, DxButton, DxForm, DxItem, DxSelectBox,
+    DxSearchPanel, DxEditing, DxPaging, DxColumnChooser,
+    DxButtonItem,
+    DxButtonOptions
   },
   created() {
     this.locale = this.getLocale();
@@ -129,32 +183,80 @@ export default {
     locale(this.locale);
   },
   data() {
+    const endp = Serv.getendpoints();
     return {
-      dataSource: store,
+      dataSource: newStore(),
+      formData: reqparams,
       locale: null,
-      cnt: 121,
       dataGridRef,
+      dataGridRefName: 'dataGrid',
       locales: service.getLocales(),
       editPopupOptions: { width: 700, height: 345 },
       amountEditorOptions: { format: "currency", showClearButton: true },
       selectBoxInputAttr: { id: "selectInput" },
+      items: endp,
+      selectedValue: null,
+      refr: null
     };
   },
   computed: {
     tcnt() {
       return 111;
     },
+    reqtext() {
+      ep = '';
+      if (this.formData.ep0) ep += this.formData.ep0;
+      if (this.formData.id0) ep += '/' + this.formData.id0;
+      if (this.formData.ep1) ep += '/' + this.formData.ep1;
+      if (this.formData.id1) ep += '/' + this.formData.id1;
+      if (this.formData.ep2) ep += '/' + this.formData.ep2;
+      if (this.formData.id2) ep += '/' + this.formData.id2;
+      //console.log('ep,ep1', ep, `${this.formData.ep0}.${this.formData.id0}.${this.formData.ep1}.${this.formData.id1}.${this.formData.ep2}`)
+      // ep = `${this.formData.ep0}${this.formData.id0}${this.formData.ep1}${this.formData.id1}${this.formData.ep2}`;
+      return ep;
+    },
+    cnt() {
+      this.totalCount;
+    },
     dataGrid: function () {
       return this.$refs[dataGridRef].instance;
     },
   },
   methods: {
+    getDisplayExpr(item) {
+      return item ? `${item.name} (${item.descr})` : '';
+    },
+    setSelectedValue(e) {
+      //      console.log('ep1', ep)
+      this.formData.ep0 = e.value.ep0;
+      this.formData.id0 = e.value.id0;
+      this.formData.ep1 = e.value.ep1;
+      this.formData.id1 = e.value.id1;
+      this.formData.ep2 = e.value.ep2;
+      this.formData.id2 = e.value.id2;
+
+      this.selectedValue = e.value;
+      ep = e.value.name;
+      this.refr = false;
+      this.$nextTick(() => {
+        this.refr = true;
+      });
+
+      //  console.log('ep', ep)
+    },
+    refresh() {
+      console.log('formData', this.formData)
+      this.refr = false;
+      this.$nextTick(() => {
+        this.refr = true;
+      });
+    },
     getRecordCount() {
       const dataSource = this.dataGrid.getDataSource();
       return dataSource.items().length + 1;
     },
     gcnt() {
-      return store.totalCount;
+      return 0; //store.totalCount;
     },
     getLocale() {
       const storageLocale = sessionStorage.getItem("locale");
@@ -186,8 +288,11 @@ export default {
 };
 </script>
 <style scoped>
+/*  @import "../../layouts/dx.light.css"; */
+
 #gridContainer {
-  height: 800px;
+  height: auto;
+  max-height: 700px;
   width: auto;
 }
 
@@ -201,7 +306,7 @@ export default {
 }
 
 #gridContainer tr.main-row td:not(:first-child) {
-  height: 21px;
+  height: 14px;
 }
 
 #gridContainer tr.notes-row {
@@ -260,5 +365,41 @@ export default {
 .option>.dx-selectbox {
   display: inline-block;
   vertical-align: middle;
+}
+
+.first-group,
+.second-group {
+  padding: 10px;
+}
+
+.second-group {
+  background-color: rgba(191, 191, 191, 0.15);
+}
+
+#gridContainer .dx-datagrid .dx-row>td {
+  padding: 2px 2px;
+  font-size: 13px;
+  line-height: 14px;
+}
+
+#gridContainer .dx-datagrid-checkbox-size .dx-checkbox-icon {
+  height: 12px;
+  width: 12px;
+}
+
+#gridContainer .dx-editor-cell.dx-editor-inline-block:not(.dx-command-select)::before {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.dx-theme-generic .dx-fieldset,
+.dx-theme-material .dx-fieldset {
+  width: 40%;
+  float: left;
+}
+
+.dx-field>.dx-lookup {
+  height: auto;
+  flex: 1;
 }
 </style>

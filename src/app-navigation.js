@@ -19,9 +19,9 @@ export default [
     icon: "folder",
     items: [
       {
-        text: "Заявки",
-        path: "/orders"
-      },
+        text: "endpoints",
+        path: "/endpoints"
+      },    
 ]
   }
   ];

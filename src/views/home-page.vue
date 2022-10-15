@@ -1,42 +1,56 @@
 <template>
-  <div>
-    <h2 class="content-block">Главная страница</h2>
-  </div>
+<div class="gallery cont_home">
+  <img src="//cdn.optipic.io/site-102345/uploads/galleries/9895/img_9895.jpg" alt="Федор Достоевский">
+  <img src="//cdn.optipic.io/site-102345/uploads/galleries/14953/img_14953.jpg" alt="Валерий Чкалов">
+  <img src="//cdn.optipic.io/site-102345/uploads/galleries/16558/img_16558.jpg" alt="Ф.И. Панферов">
+  <img src="//cdn.optipic.io/site-102345/uploads/galleries/progul/sputnik/07.jpg" alt="Спутник">
+  <img src="//cdn.optipic.io/site-102345/uploads/galleries/progul/germes/01.jpg" alt="Гермес">
+  <img src="//cdn.optipic.io/site-102345/uploads/galleries/progul/voyag/01.jpg" alt="Вояж">
+</div>
 </template>
 
 <style lang="scss">
-.logos-container {
-  margin: 20px 0 40px 0;
-  text-align: center;
-  svg {
-    display: inline-block;
-  }
+.gallery {
+  --s: 150px; /* the image size */
+  
+  display: grid;
+  transform-style: preserve-3d;
+  animation: r 15s linear infinite;
+  position: relative;
+}
+@keyframes r {
+  0% {transform: perspective(350px) rotateX(-100deg) rotate(0deg)}
+  to {transform: perspective(350px) rotateX(-100deg) rotate(-360deg)}
+}
+.gallery > img {
+  grid-area: 1/1;
+  width: var(--s);
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 10px 10px 0 0;
+  transform: rotate(var(--_a)) translateY(120%) rotateX(90deg);
+}
+.gallery > img:nth-child(1) {--_a: 0deg}
+.gallery > img:nth-child(2) {--_a: 60deg}
+.gallery > img:nth-child(3) {--_a: 120deg}
+.gallery > img:nth-child(4) {--_a: 180deg}
+.gallery > img:nth-child(5) {--_a: 240deg}
+.gallery > img:nth-child(6) {--_a: 300deg}
+
+.gallery::before {
+  content: "";
+  position: absolute;
+  inset: -100%;
+  clip-path: polygon(50% 0,calc(50% + .866*50%) 25%,calc(50% + .866*50%) 75%,50% 100%,calc(50% - .866*50%) 75%,calc(50% - .866*50%) 25%);
+  transform: translateZ(calc(var(--s)/2)) rotate(90deg);
 }
 
-.devextreme-logo {
-  width: 200px;
-  height: 34px;
-  margin-bottom: 17px;
+.cont_home {
+  margin: 0;
+  min-height: 50vh;
+  display: grid;
+  place-content: center;
+
 }
 
-.vue-logo {
-  width: 180px;
-  height: 62px;
-}
-
-.plus {
-  margin: 20px 10px;
-  width: 22px;
-  height: 22px;
-}
-
-.screen-x-small .logos-container {
-  svg {
-    width: 100%;
-    display: block;
-    &.plus {
-      margin: 0;
-    }
-  }
-}
 </style>

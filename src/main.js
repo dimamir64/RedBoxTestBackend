@@ -1,4 +1,5 @@
 import 'devextreme/dist/css/dx.common.css';
+//import 'devextreme/dist/css/dx.light.css';
 import './themes/generated/theme.base.css';
 import './themes/generated/theme.additional.css';
 import { createApp }  from "vue";

@@ -7,6 +7,7 @@ import Tasks from "./views/tasks-page";
 import Grid from "./views/grid-page";
 import Infoflot from "./views/grid-sg";
 import Orders from "./views/rv/orders-gr";
+import Contractors from "./views/rv/contractors-gr";
 import defaultLayout from "./layouts/side-nav-outer-toolbar";
 import simpleLayout from "./layouts/single-card";
 
@@ -62,14 +63,23 @@ const router = new createRouter({
       component: Infoflot
     },
     {
-      path: "/orders",
-      name: "orders",
+      path: "/endpoints",
+      name: "endpoints",
       meta: {
         requiresAuth: true,
         layout: defaultLayout
       },
       component: Orders
     },
+    {
+      path: "/contractors",
+      name: "contractors",
+      meta: {
+        requiresAuth: true,
+        layout: defaultLayout
+      },
+      component: Contractors
+    },    
     {
       path: "/login-form",
       name: "login-form",
